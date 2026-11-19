@@ -1,0 +1,36 @@
+name: Generar informes
+
+on:
+  push:
+    branches: [main]
+    paths: ["data/**", "app/**", "src/**", "build.py"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: informes
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generar app e informes
+        run: python build.py
+      - name: Guardar cambios
+        run: |
+          git config user.name "informe-bot"
+          git config user.email "informe-bot@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+          else
+            git commit -m "Informes $(date -u +%Y-%m-%d)"
+            git push
+          fi
