@@ -88,6 +88,59 @@ th:first-child,td:first-child{text-align:left}
 .win{font-weight:800}
 .log td{white-space:normal}.log .del{color:var(--ko);font-weight:700;padding:4px 8px}
 .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--chip);font-size:12px;font-weight:600}
+
+/* ===== rediseño visual ===== */
+:root{--made:#15803d;--miss:#c0262d;--reb:#1d4ed8;--play:#6d28d9;--tov:#c2410c;--foul:#a16207}
+.score{grid-template-columns:1fr auto 1fr;padding:8px 0 10px}
+.sc-team{background:var(--card);border-radius:16px;padding:8px 12px;border:1px solid var(--line);box-shadow:inset 6px 0 0 var(--c)}
+.sc-team.r{box-shadow:inset -6px 0 0 var(--c)}
+.sc-pts{font-size:44px;letter-spacing:-.03em}
+.clock{font-size:32px;min-width:140px;padding:6px 16px;border-radius:14px}
+.pips{display:inline-flex;gap:3px;vertical-align:middle}
+.pips i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.pips i.on{background:var(--ink2)}.pips.hot i.on{background:var(--miss)}
+.alerts{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.alert{font-size:13px;font-weight:600;padding:6px 10px;border-radius:10px;background:color-mix(in srgb,var(--k) 14%,var(--card));border:1px solid color-mix(in srgb,var(--k) 45%,transparent)}
+.plist{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+@media (min-width:900px){.plist{grid-template-columns:1fr 1fr}}
+.pl{min-height:88px;padding:10px;border-radius:16px;background:var(--card);border:2px solid var(--line);box-shadow:inset 0 5px 0 var(--c)}
+.pl .n{font-size:32px}.pl .nm{font-size:13px;margin-top:2px}
+.pl .p{bottom:8px;right:10px;font-size:15px;font-weight:800}
+.pl .f{top:12px;right:10px}
+.pl.on{background:var(--c);border-color:var(--c);color:#fff}.pl.on .nm,.pl.on .p{color:#fff}
+.pl.on .pips i{background:rgba(255,255,255,.35)}.pl.on .pips i.on{background:#fff}
+.pl.out5{opacity:.45}
+.team{border-top:6px solid var(--c)}
+.tbtns .btn{flex:1;padding:12px 8px;font-size:14px}
+.pad{grid-template-columns:repeat(3,1fr);gap:10px}
+.act{min-height:76px;font-size:20px;border-radius:16px;color:#fff;background:var(--k);font-weight:800;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.act small{color:rgba(255,255,255,.85);font-size:12px;font-weight:600}
+.act:active{transform:scale(.97)}
+.act.wide{grid-column:1/-1;min-height:48px;font-size:15px;background:var(--chip);color:var(--ink);box-shadow:none}
+.padlab{grid-column:1/-1;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:4px 0 -4px}
+.selhead{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px 10px;border-radius:12px;background:var(--c);color:#fff}
+.selhead .big{font-size:26px;font-weight:800}
+.choices{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.choice{min-height:68px;font-size:22px;border-radius:14px;background:var(--card);border:2px solid var(--line);box-shadow:inset 0 5px 0 var(--c,transparent)}
+.choice small{font-size:12px}
+.choice.skip{font-size:14px;background:var(--chip);border-color:transparent;box-shadow:none}
+.choice.yes{background:var(--made);color:#fff;border:0;font-size:24px;min-height:96px}
+.choice.no{background:var(--miss);color:#fff;border:0;font-size:24px;min-height:96px}
+.prompt h3{font-size:20px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(72px + env(safe-area-inset-bottom));z-index:25;background:var(--ink);color:var(--bg);
+ border-radius:14px;padding:10px 12px 10px 16px;display:flex;gap:14px;align-items:center;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:94vw}
+.toast i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--k);margin-right:8px}
+.toast button{background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 12px;font-weight:700}
+@media (max-width:600px){
+ .score{gap:6px}.sc-team{flex-direction:column;align-items:flex-start;padding:6px 8px;gap:0}.sc-team.r{align-items:flex-end}
+ .sc-team .grow{display:none}.sc-pts{font-size:34px;order:-1}.sc-name{font-size:12px;max-width:100%}
+ .sc-team .pips{display:none}.clock{font-size:24px;min-width:100px;padding:4px 10px}
+ .pl{min-height:78px}.pl .n{font-size:26px}.pl .f{top:9px;right:8px}.pips i{width:6px;height:6px}
+ .act{min-height:68px;font-size:18px}
+}
+.kits{display:flex;gap:8px;flex-wrap:wrap}
+.kit{width:38px;height:38px;border-radius:50%;background:var(--k);border:3px solid var(--card);box-shadow:0 0 0 2px var(--line)}
+.kit.on{box-shadow:0 0 0 3px var(--ink)}
 </style>
 </head>
 <body>
@@ -109,7 +162,20 @@ const LABEL = {"2FGM":"Canasta de 2","2FGA":"Fallo de 2","3FGM":"Triple","3FGA":
   "O":"Rebote ofensivo","D":"Rebote defensivo","AS":"Asistencia","ST":"Robo","TO":"Pérdida","FV":"Tapón","AG":"Tapón recibido",
   "CM":"Falta","CMU":"Antideportiva","CMT":"Técnica","OF":"Falta en ataque","RV":"Falta recibida","IN":"Entra","OUT":"Sale","TOUT":"Tiempo muerto"};
 
-let S, tick = null, view = "setup", rfilter = "all", sel = null, prompt = null, modal = null;
+let S, tick = null, view = "setup", rfilter = "all", sel = null, prompt = null, modal = null, toast = null, toastT = null;
+const KITS = ["#1f6fd1", "#d23b3b", "#1f9d55", "#e0a800", "#ea6a1f", "#7a4bd1", "#0f766e", "#db2777", "#334155", "#94a3b8"];
+const ACOL = {"2FGM":"made","3FGM":"made","FTM":"made","2FGA":"miss","3FGA":"miss","FTA":"miss","O":"reb","D":"reb",
+  "AS":"play","ST":"play","FV":"play","TO":"tov","OF":"foul","CM":"foul","RV":"foul","CMU":"foul","CMT":"foul","AG":"miss","TOUT":"reb"};
+function applyKits() {
+  const c = (S.game && S.game.colors) || S.setup.colors || {A: KITS[0], B: KITS[4]};
+  document.documentElement.style.setProperty("--A", c.A); document.documentElement.style.setProperty("--B", c.B);
+}
+function showToast(e) {
+  const who = e.pid ? pshort(e.pid) : tname(e.side);
+  toast = {text: `${LABEL[e.type] || e.type} · ${who}`, k: ACOL[e.type] || "reb"};
+  clearTimeout(toastT); toastT = setTimeout(() => { toast = null; render(); }, 3500);
+  try { navigator.vibrate && navigator.vibrate(12); } catch (x) {}
+}
 
 function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -172,7 +238,9 @@ function startTicker() {
 function addEv(side, pid, type, extra) {
   const g = S.game;
   const e = Object.assign({n: ++g.n, q: g.q, rem: Math.ceil(curRem()), side, pid: pid || null, type}, extra || {});
-  g.events.push(e); save(); return e;
+  g.events.push(e); save();
+  if (type !== "IN" && type !== "OUT") showToast(e);
+  return e;
 }
 function state() {
   // estado actual: marcador, quintetos en pista, faltas
@@ -429,6 +497,7 @@ function keys(R) {
    VISTAS
    ============================================================ */
 function render() {
+  applyKits();
   const app = document.getElementById("app");
   if (view === "setup" || !S.game) app.innerHTML = vSetup();
   else if (view === "game") app.innerHTML = vScore() + vGame();
@@ -436,7 +505,8 @@ function render() {
   else if (view === "log") app.innerHTML = vScore() + vLog();
   else if (view === "more") app.innerHTML = vScore() + vMore();
   if (S.game) app.innerHTML += vTabs();
-  document.getElementById("modal").innerHTML = modal ? vModal() : "";
+  document.getElementById("modal").innerHTML = (modal ? vModal() : "")
+    + (toast && view === "game" && !sel ? `<div class="toast"><span><i style="--k:var(--${toast.k})"></i>${esc(toast.text)}</span><button onclick="toast=null;undo()">Deshacer</button></div>` : "");
 }
 
 function vTabs() {
@@ -463,6 +533,7 @@ function vSetup() {
     const t = s.teams[side], ours = side === s.us;
     return `<div class="card team" style="--c:var(--${side})"><h3>${side === "A" ? "Local" : "Visitante"} · ${ours ? "nuestro equipo" : "rival"}</h3>
       <label>Nombre del equipo</label><input value="${esc(t.name)}" oninput="S.setup.teams.${side}.name=this.value;save()">
+      <label>Color de la camiseta</label><div class="kits">${KITS.map(k => `<button class="kit ${(S.setup.colors || {A: KITS[0], B: KITS[4]})[side] === k ? "on" : ""}" style="--k:${k}" onclick="setKit('${side}','${k}')" aria-label="color"></button>`).join("")}</div>
       <label>Jugadores: un dorsal por línea, con nombre opcional${ours ? "" : " (del rival basta el dorsal)"}</label>
       <textarea placeholder="${ours ? "4 Dani\n7 Pablo\n10 Hugo" : "4\n5\n8\n11"}" oninput="S.setup.teams.${side}.roster=this.value;save()">${esc(t.roster)}</textarea>
       <div class="small muted">${parseRoster(t.roster, side).length} jugadores</div></div>`;
@@ -470,6 +541,7 @@ function vSetup() {
   <p class="small muted">Consejo: como son menores, usa solo el dorsal y el nombre de pila (o iniciales). Todo se guarda únicamente en este dispositivo.</p>
   <button class="btn pri" style="width:100%;margin-top:6px" onclick="toStarters()">Elegir quintetos iniciales →</button>`;
 }
+function setKit(side, k) { S.setup.colors = S.setup.colors || {A: KITS[0], B: KITS[4]}; S.setup.colors[side] = k; save(); render(); }
 function toStarters() {
   const s = S.setup;
   for (const side of "AB") if (parseRoster(s.teams[side].roster, side).length < 5) { alertBox(`Faltan jugadores en ${side === "A" ? "el local" : "el visitante"} (mínimo 5).`); return; }
@@ -486,35 +558,53 @@ function startGame() {
     pl[side] = parseRoster(s.teams[side].roster, side);
   }
   if (teams.A.code === teams.B.code) teams.B.code = teams.B.code.slice(0, 2) + "2";
-  S.game = {q: 1, rem: 600, running: false, events: [], n: 0, teams, players: pl, starts: {1: {A: m.A, B: m.B}}, ended: {}};
+  S.game = {q: 1, rem: 600, running: false, events: [], n: 0, teams, players: pl, starts: {1: {A: m.A, B: m.B}}, ended: {},
+    colors: Object.assign({A: KITS[0], B: KITS[4]}, S.setup.colors || {})};
   modal = null; view = "game"; save(); render();
 }
 
 function vScore() {
   const g = S.game, st = state(), r = curRem();
-  const tf = s => `<span class="tf">Faltas ${st.tf[s] >= 4 ? `<b class="bonus">${st.tf[s]} · bonus</b>` : st.tf[s]} · TM ${st.to[s]}</span>`;
+  const pips = (n, max) => `<span class="pips ${n >= max ? "hot" : ""}">${Array.from({length: max}, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</span>`;
+  const info = s => `<div class="tf">Faltas ${pips(Math.min(st.tf[s], 5), 5)}<b class="${st.tf[s] >= 4 ? "bonus" : ""}"> ${st.tf[s]}${st.tf[s] >= 4 ? " BONUS" : ""}</b> · TM ${st.to[s]}</div>`;
   return `<div class="score">
-    <div class="sc-team"><span class="dot" style="--c:var(--A)"></span><div style="min-width:0"><div class="sc-name">${esc(tname("A"))}</div>${tf("A")}</div><div class="grow"></div><div class="sc-pts">${st.score.A}</div></div>
+    <div class="sc-team" style="--c:var(--A)"><div style="min-width:0"><div class="sc-name">${esc(tname("A"))}</div>${info("A")}</div><div class="grow"></div><div class="sc-pts">${st.score.A}</div></div>
     <div class="sc-mid"><div class="qlab">${g.final ? "FINAL" : qlab(g.q)}</div>
       <button class="clock ${g.running ? "run" : ""}" id="clk" onclick="toggleClock()">${mmss(r)}</button>
       <div class="small muted">${g.final ? "" : g.running ? "toca para parar" : "toca para arrancar"}</div></div>
-    <div class="sc-team r"><div class="sc-pts">${st.score.B}</div><div class="grow"></div><div style="min-width:0;text-align:right"><div class="sc-name">${esc(tname("B"))}</div>${tf("B")}</div><span class="dot" style="--c:var(--B)"></span></div>
+    <div class="sc-team r" style="--c:var(--B)"><div class="sc-pts">${st.score.B}</div><div class="grow"></div><div style="min-width:0;text-align:right"><div class="sc-name">${esc(tname("B"))}</div>${info("B")}</div></div>
   </div>`;
+}
+
+function alerts(st) {
+  if (!S.game || S.game.final) return "";
+  const R = analyze("all"), u = S.setup.us, r = OTHER[u], out = [];
+  for (const id of st.on[u]) { const f = st.pf[id] || 0; if (f >= 3) out.push([f >= 4 ? "miss" : "foul", `${pshort(id)} · ${f} faltas`]); }
+  for (const id of st.on[r]) { const f = st.pf[id] || 0; if (f >= 4) out.push(["made", `Rival ${pshort(id)} con ${f} faltas: atacadle`]); }
+  if (st.tf[u] >= 4) out.push(["foul", `Llevamos ${st.tf[u]} faltas en el cuarto: cada falta son tiros libres`]);
+  if (st.tf[r] >= 4) out.push(["made", `El rival está en bonus (${st.tf[r]} faltas)`]);
+  const c = R.cur;
+  if (c && c.pts >= 6 && c.side === r) out.push(["miss", `Parcial 0-${c.pts} en contra · ¿tiempo muerto?`]);
+  if (c && c.pts >= 6 && c.side === u) out.push(["made", `Parcial ${c.pts}-0 a favor`]);
+  const hot = Object.values(R.P).filter(p => p.side === r && p.PTS >= 10).sort((a, b) => b.PTS - a.PTS)[0];
+  if (hot) out.push(["tov", `Peligro: rival #${hot.num} lleva ${hot.PTS} puntos`]);
+  return out.length ? `<div class="alerts">${out.map(([k, t]) => `<span class="alert" style="--k:var(--${k})">${esc(t)}</span>`).join("")}</div>` : "";
 }
 
 function vTeam(side, st) {
   const R = analyze("all");
   const btn = id => {
     const p = pinfo(id), f = st.pf[id] || 0, pts = R.P[id] ? R.P[id].PTS : 0;
-    return `<button class="pl ${sel === id ? "on" : ""}" onclick="pick('${id}')"><div class="n">${esc(p.num)}</div><div class="nm">${esc(p.name || " ")}</div>
-      <span class="f ${f >= 5 ? "x" : f >= 3 ? "w" : ""}">${f ? f + "F" : ""}</span><span class="p">${pts ? pts : ""}</span></button>`;
+    const pips = `<span class="pips ${f >= 4 ? "hot" : ""}">${[0, 1, 2, 3, 4].map(i => `<i class="${i < f ? "on" : ""}"></i>`).join("")}</span>`;
+    return `<button class="pl ${sel === id ? "on" : ""} ${f >= 5 ? "out5" : ""}" style="--c:var(--${side})" onclick="pick('${id}')"><div class="n">${esc(p.num)}</div><div class="nm">${esc(p.name || "\u00a0")}</div>
+      <span class="f">${pips}</span><span class="p">${pts ? pts + "<small style='font-size:11px;font-weight:600'> pts</small>" : ""}</span></button>`;
   };
   return `<div class="card team" style="--c:var(--${side})">
-    <div class="row" style="margin-bottom:8px"><b class="grow">${esc(tname(side))}</b><span class="small muted">${side === S.setup.us ? "nosotros" : "rival"}</span></div>
+    <div class="row" style="margin-bottom:10px"><b class="grow" style="font-size:16px">${esc(tname(side))}</b><span class="pill">${side === S.setup.us ? "nosotros" : "rival"}</span></div>
     <div class="plist">${st.on[side].map(btn).join("")}</div>
-    <div class="tbtns"><button class="btn sm" onclick="teamAct('${side}','SUB')">⇄ Cambio</button>
-    <button class="btn sm" onclick="teamAct('${side}','TOUT')">Tiempo muerto</button>
-    <button class="btn sm" onclick="modal={k:'team',side:'${side}'};render()">Equipo…</button></div>
+    <div class="tbtns"><button class="btn" onclick="teamAct('${side}','SUB')">⇄ Cambio</button>
+    <button class="btn" onclick="teamAct('${side}','TOUT')">⏸ T. muerto</button>
+    <button class="btn" onclick="modal={k:'team',side:'${side}'};render()">Equipo…</button></div>
   </div>`;
 }
 function pick(id) { if (prompt) return; sel = sel === id ? null : id; render(); }
@@ -526,17 +616,20 @@ function vGame() {
   else if (prompt) center = vPrompt(st);
   else if (sel) {
     const p = pinfo(sel);
-    const A = (t, l, c, sm) => `<button class="act ${c || ""}" onclick="act('${t}')">${l}${sm ? `<small>${sm}</small>` : ""}</button>`;
-    center = `<div class="card"><div class="row" style="margin-bottom:8px"><span class="dot" style="--c:var(--${sel[0]})"></span><b class="grow">#${esc(p.num)} ${esc(p.name)}</b>
-      <button class="btn sm" onclick="sel=null;render()">Cancelar</button></div>
-      <div class="pad">${A("2FGM", "2 ✓", "m", "anotado")}${A("2FGA", "2 ✗", "x", "fallado")}${A("3FGM", "3 ✓", "m", "anotado")}${A("3FGA", "3 ✗", "x", "fallado")}
-      ${A("FTM", "TL ✓", "m", "anotado")}${A("FTA", "TL ✗", "x", "fallado")}${A("O", "Reb. Of.")}${A("D", "Reb. Def.")}
-      ${A("AS", "Asist.")}${A("ST", "Robo")}${A("TO", "Pérdida")}${A("FV", "Tapón")}
-      ${A("CM", "Falta", "", "cometida")}${A("RV", "Falta", "", "recibida")}${A("OF", "Falta", "", "en ataque")}${A("MORE", "Más…", "", "antidep., téc.")}</div></div>`;
+    const A = (t, l, k, sm) => `<button class="act" style="--k:var(--${k})" onclick="act('${t}')">${l}${sm ? `<small>${sm}</small>` : ""}</button>`;
+    center = `<div class="card"><div class="selhead" style="--c:var(--${sel[0]})"><span class="big">#${esc(p.num)}</span><b class="grow">${esc(p.name)}</b>
+      <button class="btn sm" style="background:rgba(255,255,255,.2);color:#fff" onclick="sel=null;render()">✕ Cancelar</button></div>
+      <div class="pad">
+      <div class="padlab">Canasta</div>${A("2FGM", "2 ✓", "made", "anotado")}${A("3FGM", "3 ✓", "made", "triple")}${A("FTM", "TL ✓", "made", "tiro libre")}
+      <div class="padlab">Fallo</div>${A("2FGA", "2 ✗", "miss", "fallado")}${A("3FGA", "3 ✗", "miss", "fallado")}${A("FTA", "TL ✗", "miss", "fallado")}
+      <div class="padlab">Rebote y balón</div>${A("O", "Reb. Of.", "reb", "ofensivo")}${A("D", "Reb. Def.", "reb", "defensivo")}${A("TO", "Pérdida", "tov", "balón perdido")}
+      <div class="padlab">Juego</div>${A("AS", "Asist.", "play", "pase de canasta")}${A("ST", "Robo", "play", "recupera")}${A("FV", "Tapón", "play", "pone")}
+      <div class="padlab">Faltas</div>${A("CM", "Falta", "foul", "comete")}${A("RV", "Recibe", "foul", "falta recibida")}${A("OF", "En ataque", "foul", "falta + pérdida")}
+      <button class="act wide" onclick="act('MORE')">Más: antideportiva, técnica, tapón recibido…</button></div></div>`;
   } else center = `<div class="card hint">Toca un jugador y después la acción.<br><span class="small">Tras una canasta te pregunto la asistencia; tras un fallo, el rebote; tras una falta, sobre quién y los tiros libres.</span></div>`;
   const lastE = g.events.filter(e => e.type !== "IN" && e.type !== "OUT").slice(-1)[0];
   const lastTxt = lastE ? `${qlab(lastE.q)} ${mmss(lastE.rem)} · ${LABEL[lastE.type] || lastE.type} · ${lastE.pid ? pshort(lastE.pid) : esc(tname(lastE.side))}` : "";
-  return `<div class="board">${vTeam("A", st)}<div>${center}
+  return `${alerts(st)}<div class="board">${vTeam("A", st)}<div>${center}
     <div class="row" style="margin-top:8px"><button class="btn sm" onclick="undo()" ${g.events.length ? "" : "disabled"}>↶ Deshacer</button>
     <span class="last grow">${esc(lastTxt)}</span>
     ${g.final ? "" : `<button class="btn sm" onclick="modal={k:'clock'};render()">Ajustar reloj</button>
@@ -546,23 +639,23 @@ function vGame() {
 
 function vPrompt(st) {
   const p = prompt;
-  const pbtn = (id, sub) => { const x = pinfo(id); return `<button class="choice" onclick="choose('${id}')">#${esc(x.num)}<small>${esc(x.name || sub || "")}</small></button>`; };
-  const skip = (l) => `<button class="choice" onclick="choose(null)">${l}</button>`;
+  const pbtn = (id, sub) => { const x = pinfo(id); return `<button class="choice" style="--c:var(--${id[0]})" onclick="choose('${id}')">${esc(x.num)}<small>${esc(x.name || sub || "")}</small></button>`; };
+  const skip = (l) => `<button class="choice skip" onclick="choose(null)">${l}</button>`;
   let h = "", body = "";
   if (p.k === "assist") { h = "¿Asistencia?"; body = st.on[p.side].filter(x => x !== p.scorer).map(id => pbtn(id)).join("") + skip("Sin asistencia"); }
   else if (p.k === "reb") {
     h = "¿Rebote?";
-    body = `<div style="grid-column:1/-1" class="small muted">${esc(tname("A"))}</div>` + st.on.A.map(id => pbtn(id)).join("") + `<button class="choice" onclick="choose('A')">Equipo<small>${esc(tcode("A"))}</small></button>`
-      + `<div style="grid-column:1/-1" class="small muted">${esc(tname("B"))}</div>` + st.on.B.map(id => pbtn(id)).join("") + `<button class="choice" onclick="choose('B')">Equipo<small>${esc(tcode("B"))}</small></button>`
+    body = `<div style="grid-column:1/-1" class="small muted">${esc(tname("A"))}</div>` + st.on.A.map(id => pbtn(id)).join("") + `<button class="choice" style="--c:var(--A);font-size:15px" onclick="choose('A')">Equipo<small>${esc(tcode("A"))}</small></button>`
+      + `<div style="grid-column:1/-1" class="small muted">${esc(tname("B"))}</div>` + st.on.B.map(id => pbtn(id)).join("") + `<button class="choice" style="--c:var(--B);font-size:15px" onclick="choose('B')">Equipo<small>${esc(tcode("B"))}</small></button>`
       + skip(p.optional ? "Quedan tiros / nadie" : "Saltar");
   }
   else if (p.k === "lost") { h = "¿Quién la pierde?"; body = st.on[p.side].map(id => pbtn(id)).join("") + skip("No sé"); }
   else if (p.k === "blocked") { h = "¿A quién tapona?"; body = st.on[p.side].map(id => pbtn(id)).join("") + skip("No sé"); }
   else if (p.k === "fouled") { h = "¿Falta sobre quién?"; body = st.on[p.side].map(id => pbtn(id)).join("") + skip("Sin tiros / no sé"); }
-  else if (p.k === "ftn") { h = `¿Tiros libres para #${esc(pinfo(p.shooter).num)}?`; body = [0, 1, 2, 3].map(n => `<button class="choice" onclick="choose(${n})">${n || "Ninguno"}${n ? "<small>tiros</small>" : ""}</button>`).join(""); }
+  else if (p.k === "ftn") { h = `¿Tiros libres para #${esc(pinfo(p.shooter).num)}?`; body = [0, 1, 2, 3].map(n => `<button class="choice ${n ? "" : "skip"}" onclick="choose(${n})">${n || "Ninguno"}${n ? "<small>tiros</small>" : ""}</button>`).join(""); }
   else if (p.k === "ft") {
     h = `Tiro libre ${p.total - p.left + 1} de ${p.total} · #${esc(pinfo(p.shooter).num)}`;
-    body = `<button class="choice act m" style="min-height:80px" onclick="choose('in')">✓ Anotado</button><button class="choice act x" style="min-height:80px" onclick="choose('out')">✗ Fallado</button>`;
+    body = `<button class="choice yes" onclick="choose('in')">✓ Anotado</button><button class="choice no" onclick="choose('out')">✗ Fallado</button>`;
   }
   return `<div class="card prompt"><h3>${h}</h3><div class="choices">${body}</div></div>`;
 }
