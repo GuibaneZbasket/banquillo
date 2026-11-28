@@ -32,6 +32,19 @@ def main():
 
     # 2. informes de los partidos exportados
     d = os.path.join(ROOT, "data", "partidos")
+    # los archivos subidos directamente a la raíz del repositorio se mueven a data/partidos
+    os.makedirs(d, exist_ok=True)
+    for f in os.listdir(ROOT):
+        if f.endswith(".json") and f not in ("package.json",):
+            src = os.path.join(ROOT, f)
+            try:
+                with open(src, encoding="utf-8") as fh:
+                    ok = "pbp" in json.load(fh)
+            except Exception:
+                ok = False
+            if ok:
+                shutil.move(src, os.path.join(d, f))
+                print(f"  movido {f} a data/partidos/")
     games = []
     for f in sorted(os.listdir(d)) if os.path.isdir(d) else []:
         if not f.endswith(".json"):
