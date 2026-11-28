@@ -327,7 +327,7 @@ def claves(g, t):
             f"({g['team_box'][o]['TOV']} pérdidas {t.de(o)}).")
     if aw["p3"] is not None and al["p3"] is not None:
         d = (aw["p3"] - al["p3"]) * 100
-        if abs(d) >= 10:
+        if abs(d) >= 10 and max(aw["p3"], al["p3"]) >= 0.33:
             s = w if d > 0 else l
             b = g["team_box"][s]
             add(abs(d) * 0.6, "Triples",
