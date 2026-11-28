@@ -527,6 +527,7 @@ def analyze(pbp, header=None, game_code=None, season=None):
         "venue": header.get("Stadium") or header.get("stadium"),
         "teams": {s: {"code": codes[s], "name": names[s], "short": pbp.get(f"ShortTeam{s}")} for s in "AB"},
         "us": header.get("Us"),
+        "coach": header.get("Coach"),
         "score": final,
         "winner": winner,
         "periods": n_periods,

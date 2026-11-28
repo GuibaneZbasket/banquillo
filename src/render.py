@@ -112,6 +112,11 @@ summary{cursor:pointer;padding:10px 14px;font-weight:600}
 .glos dt{font-weight:700;display:inline}.glos dd{display:inline;margin:0 0 0 4px}
 .glos div{margin:2px 0}
 .heat td.h{font-weight:600}
+.sem{display:inline-block;width:14px;height:14px;border-radius:50%;flex:none;margin-top:3px}
+.goal-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--grid)}
+.goal-row:last-child{border:0}.goal-row .v{font-weight:800;font-size:18px;margin-left:auto}
+.ck{padding:9px 11px;border-radius:10px;background:var(--hl);margin:6px 0;font-size:14px;border-left:4px solid var(--k)}
+.ck b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink2)}
 footer{margin-top:40px;font-size:12px;color:var(--muted)}
 @media (max-width:600px){h1{font-size:32px}.score .num{font-size:38px}.qs{display:none}}
 """
@@ -411,6 +416,47 @@ def quarter_heat(g, s):
     return f'<div class="scroll"><table class="heat"><tr><th>{esc(tname(g, s))}</th>{head}<th>Tot</th></tr>{rows}</table></div>'
 
 
+
+SEM = {"ok": ("#0ca30c", "✓"), "warn": ("#fab219", "⚠"), "bad": ("#e34948", "✗"), "na": ("#c3c2b7", "·")}
+
+
+def coach_section(g):
+    """Sección «Para el entrenador»: objetivos, claves por cuarto y quién nos hizo daño."""
+    c = g.get("coach")
+    if not c:
+        return ""
+    goals = ""
+    for x in c.get("goals") or []:
+        col, ic = SEM.get(x.get("status"), SEM["na"])
+        tgt = f'{"como mucho" if x["op"] == "<=" else "al menos"} {x["target"]}{"%" if x.get("pct") else ""}'
+        val = "–" if x.get("value") is None else f'{x["value"]}{"%" if x.get("pct") else ""}'
+        goals += (f'<div class="goal-row"><span class="sem" style="background:{col}"></span><div>{ic} {esc(x["label"])}'
+                  f'<div class="muted" style="font-size:12px">Objetivo: {tgt}</div></div><span class="v">{val}</span></div>')
+    goals = goals or '<div class="muted">No se marcaron objetivos.</div>'
+    keys = c.get("keys") or {}
+    order = ["all"] + sorted([k for k in keys if k != "all"], key=lambda k: int(k))
+    tabs = "".join(f'<button class="{"on" if i == 0 else ""}" data-t="{i}">{"Partido" if k == "all" else period_label(int(k))}</button>'
+                   for i, k in enumerate(order))
+
+    def pane(k):
+        kk = keys[k]
+        bad = "".join(f'<div class="ck" style="--k:#e34948"><b>{esc(x["label"])}</b>{esc(x["text"])}</div>' for x in kk.get("bad", [])) \
+            or '<div class="muted" style="font-size:13px">Nada preocupante.</div>'
+        good = "".join(f'<div class="ck" style="--k:#0ca30c"><b>{esc(x["label"])}</b>{esc(x["text"])}</div>' for x in kk.get("good", [])) \
+            or '<div class="muted" style="font-size:13px">Nada destacable.</div>'
+        return (f'<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))"><div><h3>▼ Dónde perdimos</h3>{bad}</div>'
+                f'<div><h3>▲ Qué nos funcionó</h3>{good}</div></div>')
+    panes = "".join(f'<div data-pane="coach"{"" if i == 0 else " hidden"}>{pane(k)}</div>' for i, k in enumerate(order))
+    dmg = "".join(f'<li><span class="rank" style="width:auto;min-width:38px">#{esc(str(d["num"]))}</span><span style="flex:1"><b>{esc(d.get("name") or "")}</b> '
+                  f'<span class="muted" style="font-size:13px">{esc(d.get("how") or "")} · {d.get("pf", 0)} faltas</span></span>'
+                  f'<span class="big">{d["pts"]}</span></li>' for d in c.get("damage") or []) or "<li>Sin datos</li>"
+    return f"""<section id="entrenador"><h2>Para el entrenador</h2>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:start">
+<div class="card"><h3>🎯 Objetivos del partido</h3>{goals}</div>
+<div class="card"><h3>🔥 Quién nos hizo daño</h3><ul class="list">{dmg}</ul></div></div>
+<div class="card" style="margin-top:12px"><div class="tabs" data-tabs="coach">{tabs}</div>{panes}</div></section>"""
+
+
 def match_page(g, c, demo=False):
     A, B = "A", "B"
     w = g["winner"]
@@ -429,7 +475,7 @@ def match_page(g, c, demo=False):
 <div class="scroll qtable"><table><tr><th></th>{qhead}<th>Total</th></tr>{qrows}</table></div></div>"""
 
     chips = "".join(f'<a class="pill" href="#{a}">{b}</a>' for a, b in [
-        ("resumen", "Resumen"), ("jugadores", "Jugadores"), ("cronica", "Crónica"), ("marcador", "Marcador"), ("momentos", "Rachas"),
+        ("resumen", "Resumen")] + ([("entrenador", "Entrenador")] if g.get("coach") else []) + [("jugadores", "Jugadores"), ("cronica", "Crónica"), ("marcador", "Marcador"), ("momentos", "Rachas"),
         ("equipos", "Equipos"), ("avanzada", "Avanzada"), ("cuartos", "Por cuartos"),
         ("quintetos", "Quintetos"), ("pbp", "Jugada a jugada")])
 
@@ -577,6 +623,7 @@ def match_page(g, c, demo=False):
 <nav class="chips">{chips}</nav>
 <section id="resumen"><h2>Resumen</h2>{mvp_html}<div class="tiles" style="margin-top:10px">{tiles_html}</div>
 <h3 style="margin-top:16px">Claves del partido</h3><div class="keys">{keys}</div></section>
+{coach_section(g)}
 <section id="jugadores"><h2>Estadísticas de jugadores</h2><div class="card">
 <div class="tabs" data-tabs="box"><button class="on" data-t="0">{esc(tname(g, A))}</button><button data-t="1">{esc(tname(g, B))}</button></div>
 <div data-pane="box">{box_table(g, A)}</div><div data-pane="box" hidden>{box_table(g, B)}</div>

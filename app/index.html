@@ -448,7 +448,7 @@ function endQuarter() {
   if (g.running) { g.running = false; }
   g.ended = g.ended || {};
   g.ended[g.q] = true;
-  if (g.q >= 4 && st.score.A !== st.score.B) { g.final = true; modal = null; save(); view = "report"; render(); return; }
+  if (g.q >= 4 && st.score.A !== st.score.B) { finishGame(); return; }
   g.q += 1; g.rem = QLEN(g.q);
   g.starts[g.q] = {A: [...st.on.A], B: [...st.on.B]};
   modal = {k: "qstart"};
@@ -655,6 +655,7 @@ function vSetup() {
       <div class="small muted">${parseRoster(t.roster, side).length} jugadores</div></div>`;
   }).join("")}</div>
   <h2>Objetivos del partido</h2><div class="card"><p class="small muted" style="margin-top:0">Marca los que quieras vigilar. Durante el partido verás un semáforo con cada uno.</p>${vGoalsEdit("setup")}</div>
+  <div style="margin-top:12px">${vGh()}</div>
   <p class="small muted">Consejo: como son menores, usa solo el dorsal y el nombre de pila (o iniciales). Todo se guarda únicamente en este dispositivo.</p>
   <button class="btn pri" style="width:100%;margin-top:6px" onclick="toStarters()">Elegir quintetos iniciales →</button>`;
 }
@@ -834,7 +835,7 @@ function vReport() {
       <div class="small muted">● en pista ahora. ${rfilter === "all" ? "Faltas: total del partido." : "Datos solo del " + qlab(rfilter) + "."}</div>`;
   };
   const lus = R.lus[u].map(l => `<tr><td>${l.ids.map(id => "#" + pinfo(id).num).join(" ")}</td><td>${minfmt(l.sec)}</td><td>${l.pf}-${l.pa}</td><td><b>${l.pm > 0 ? "+" : ""}${l.pm}</b></td></tr>`).join("");
-  return `${seg}
+  return `${vUpStatus()}${seg}
   <div class="card" style="margin-bottom:12px"><h3 style="margin-top:0">🎯 Objetivos del partido</h3>${vGoalsList(analyze("all"))}</div>
   <div class="cols"><div class="card"><h3 style="margin-top:0">▼ Dónde perdemos</h3>${kb(K.bad, "bad", "Nada preocupante por ahora.")}</div>
   <div class="card"><h3 style="margin-top:0">▲ Qué nos funciona</h3>${kb(K.good, "good", "Todavía nada destacable.")}</div></div>
@@ -858,11 +859,11 @@ function vLog() {
 
 function vMore() {
   const g = S.game;
-  return `<h2>Partido</h2><div class="card">
+  return `<h2>Partido</h2>${vUpStatus()}<div style="margin:10px 0">${vGh()}</div><div class="card">
     <p>${esc(tname("A"))} – ${esc(tname("B"))} · ${esc(S.setup.date)} ${esc(S.setup.hour)}</p>
-    <div class="row"><button class="btn pri" onclick="exportJSON()">⬇ Exportar partido</button>
+    <div class="row"><button class="btn" onclick="exportJSON()">⬇ Descargar archivo</button>
     <button class="btn" onclick="copyJSON()">Copiar datos</button></div>
-    <p class="small muted">El archivo exportado se sube a la carpeta <b>data/partidos</b> del repositorio <b>banquillo</b> en GitHub y se genera el informe completo del partido (crónica, gráficos y estadística avanzada).</p>
+    <p class="small muted">Normalmente no hace falta: al terminar el partido se sube solo. La descarga queda como copia de seguridad.</p>
     <a class="btn" style="display:inline-block;text-decoration:none" href="informes/">📊 Ver informes de partidos</a>
     ${g.final ? "" : `<button class="btn" onclick="modal={k:'endgame'};render()">Terminar partido</button>`}
   </div>
@@ -930,6 +931,16 @@ function vModal() {
       <h3>Entran (${m.in.length})</h3><div class="choices" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))">${bench.map(p => b(p.id, "in")).join("")}</div>
       <div class="row" style="margin-top:14px"><button class="btn" onclick="modal=null;render()">Cancelar</button><div class="grow"></div>
       <button class="btn pri" ${m.out.length && m.out.length === m.in.length ? "" : "disabled"} onclick="applySub()">Hacer cambio</button></div>`;
+  } else if (m.k === "up") {
+    const u = S.game.upload || {};
+    h = u.state === "ok" ? `<h2 style="margin-top:0">✓ Partido subido</h2><p>El informe completo estará listo en unos 2-3 minutos.</p>
+        <div class="row"><a class="btn pri" style="text-decoration:none" href="${esc(u.url)}" target="_blank" rel="noopener">Abrir informe</a><div class="grow"></div><button class="btn" onclick="modal=null;render()">Cerrar</button></div>`
+      : u.state === "error" ? `<h2 style="margin-top:0">No se ha podido subir</h2><p>${esc(u.msg)}</p>
+        <div class="row"><button class="btn pri" onclick="uploadGame(true)">Reintentar</button><div class="grow"></div><button class="btn" onclick="modal=null;render()">Cerrar</button></div>`
+      : `<h2 style="margin-top:0">Subiendo el partido…</h2><p class="muted">Un momento.</p>`;
+  } else if (m.k === "ghsetup") {
+    h = `<h2 style="margin-top:0">Falta configurar la subida</h2><p>Para que el partido se suba solo a GitHub hay que poner una vez el código de acceso en la pestaña <b>Partido</b>. Mientras tanto el partido queda guardado en la tablet.</p>
+      <div class="row"><button class="btn pri" onclick="modal=null;go('more')">Configurar ahora</button><div class="grow"></div><button class="btn" onclick="modal=null;render()">Más tarde</button></div>`;
   } else if (m.k === "tm") {
     h = vTimeout(m.side);
   } else if (m.k === "qstart") {
@@ -940,7 +951,7 @@ function vModal() {
       <div class="row"><button class="btn" onclick="modal=null;render()">No</button><div class="grow"></div><button class="btn pri" onclick="endQuarter()">Sí, terminar</button></div>`;
   } else if (m.k === "endgame") {
     h = `<h2 style="margin-top:0">¿Terminar el partido?</h2><div class="row"><button class="btn" onclick="modal=null;render()">No</button><div class="grow"></div>
-      <button class="btn pri" onclick="S.game.running=false;S.game.final=true;S.game.ended[S.game.q]=true;modal=null;save();go('report')">Sí</button></div>`;
+      <button class="btn pri" onclick="finishGame()">Sí</button></div>`;
   } else if (m.k === "reset") {
     h = `<h2 style="margin-top:0">¿Borrar el partido?</h2><p class="muted">No se puede deshacer.</p><div class="row"><button class="btn" onclick="modal=null;render()">No</button><div class="grow"></div>
       <button class="btn pri" style="background:var(--ko)" onclick="resetAll()">Borrar</button></div>`;
@@ -1000,7 +1011,7 @@ function buildExport() {
   const d = S.setup.date ? S.setup.date.split("-").reverse().join("/") : "";
   const header = {Round: S.setup.jornada || "", Date: d, Hour: S.setup.hour || "", Stadium: S.setup.venue || "",
     TeamA: tname("A"), TeamB: tname("B"), CodeTeamA: tcode("A"), CodeTeamB: tcode("B"), ScoreA: String(st.score.A), ScoreB: String(st.score.B),
-    Live: !g.final, Us: S.setup.us};
+    Live: !g.final, Us: S.setup.us, Goals: g.goals || {}, Coach: coachData()};
   return {header, pbp};
 }
 function fileName() { const r = OTHER[S.setup.us]; return `${S.setup.date || today()}-${mkcode(tname(r), "RIV").toLowerCase()}.json`; }
@@ -1013,8 +1024,152 @@ function copyJSON() {
   navigator.clipboard.writeText(JSON.stringify(buildExport())).then(() => alertBox("Datos copiados."), () => alertBox("No se pudo copiar."));
 }
 
+/* ============================================================
+   SUBIDA AUTOMÁTICA A GITHUB
+   El código de acceso (token) se guarda solo en esta tablet.
+   ============================================================ */
+const GH_KEY = "banquillo-github";
+function ghCfg() {
+  let c = {};
+  try { c = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (e) {}
+  return Object.assign({repo: "GuibaneZbasket/banquillo", token: ""}, c);
+}
+function ghSet(k, v) { const c = ghCfg(); c[k] = (v || "").trim(); try { localStorage.setItem(GH_KEY, JSON.stringify(c)); } catch (e) {} render(); }
+function b64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+async function ghReq(method, path, body) {
+  const c = ghCfg();
+  const r = await fetch(`https://api.github.com/repos/${c.repo}/${path}`, {method,
+    headers: Object.assign({Authorization: `Bearer ${c.token}`, Accept: "application/vnd.github+json"}, body ? {"Content-Type": "application/json"} : {}),
+    body: body ? JSON.stringify(body) : undefined});
+  let j = null; try { j = await r.json(); } catch (e) {}
+  return {ok: r.ok, status: r.status, j};
+}
+function reportUrl() {
+  const [owner, repo] = ghCfg().repo.split("/");
+  return `https://${(owner || "").toLowerCase()}.github.io/${repo}/informes/partidos/EQ-${fileName().replace(/\.json$/, "")}.html`;
+}
+let uploading = false;
+async function uploadGame(show) {
+  const g = S.game; if (!g || uploading) return;
+  const c = ghCfg();
+  if (!c.token) { if (show) { modal = {k: "ghsetup"}; render(); } return; }
+  uploading = true;
+  g.upload = {state: "sending", at: Date.now()}; save();
+  if (show) modal = {k: "up"};
+  render();
+  try {
+    const path = `data/partidos/${fileName()}`, st = state();
+    const cur = await ghReq("GET", `contents/${path}`);
+    const body = {message: `Partido ${S.setup.date}: ${tname("A")} ${st.score.A}-${st.score.B} ${tname("B")}`, content: b64(JSON.stringify(buildExport()))};
+    if (cur.ok && cur.j && cur.j.sha) body.sha = cur.j.sha;
+    const r = await ghReq("PUT", `contents/${path}`, body);
+    if (!r.ok) throw new Error(r.status === 401 ? "El código de acceso no es válido o ha caducado. Revísalo en la pestaña Partido."
+      : (r.status === 403 || r.status === 404) ? "El código de acceso no tiene permiso para escribir en el repositorio. Revisa que tenga «Contents: Read and write» sobre banquillo."
+      : `GitHub respondió ${r.status}${r.j && r.j.message ? ": " + r.j.message : ""}`);
+    g.upload = {state: "ok", at: Date.now(), url: reportUrl()};
+  } catch (e) {
+    const net = !e || !e.message || /fetch|network|load failed/i.test(e.message);
+    g.upload = {state: "error", at: Date.now(), msg: net ? "Sin conexión. Se volverá a intentar solo en cuanto haya internet." : e.message};
+  }
+  uploading = false; save(); render();
+}
+async function ghTest() {
+  modal = {k: "msg", text: "Comprobando…"}; render();
+  try {
+    const r = await ghReq("GET", "");
+    modal = {k: "msg", text: r.ok ? `✓ Conexión correcta con ${ghCfg().repo}. Al terminar cada partido se subirá solo.`
+      : r.status === 401 ? "✗ El código de acceso no es válido." : `✗ No se encuentra el repositorio o no hay permiso (${r.status}).`};
+  } catch (e) { modal = {k: "msg", text: "✗ Sin conexión a internet."}; }
+  render();
+}
+function finishGame() {
+  const g = S.game;
+  g.running = false; g.final = true; g.ended = g.ended || {}; g.ended[g.q] = true;
+  modal = null; save(); view = "report";
+  uploadGame(true);
+  render();
+}
+function retryPending() { if (S.game && S.game.final && (!S.game.upload || S.game.upload.state !== "ok") && ghCfg().token) uploadGame(false); }
+window.addEventListener("online", retryPending);
+setInterval(retryPending, 60000);
+
+function vUpStatus() {
+  const g = S.game, u = g && g.upload;
+  if (!g || !g.final) return "";
+  if (!ghCfg().token) return `<div class="key info"><b>Subida a GitHub</b>Sin configurar. Pon el código de acceso abajo y se subirá solo.</div>`;
+  if (!u || u.state === "sending") return `<div class="key info"><b>Subida a GitHub</b>Subiendo…</div>`;
+  if (u.state === "ok") return `<div class="key good"><b>✓ Partido subido</b>El informe completo estará listo unos 2-3 minutos después de subirlo. <a href="${esc(u.url)}" target="_blank" rel="noopener"><b>Abrir informe →</b></a></div>`;
+  return `<div class="key bad"><b>Pendiente de subir</b>${esc(u.msg)} <button class="btn sm" onclick="uploadGame(true)">Reintentar</button></div>`;
+}
+function vGh() {
+  const c = ghCfg();
+  return `<details ${c.token ? "" : "open"} class="card" style="padding:0"><summary>☁ Subida automática a GitHub ${c.token ? "· configurada ✓" : "· sin configurar"}</summary><div style="padding:0 14px 14px">
+    <p class="small muted" style="margin-top:0">Al pulsar <b>Terminar partido</b> la app sube el partido a tu repositorio y el informe completo se genera solo. Si no hay internet, lo reintenta sola.</p>
+    <label>Repositorio</label><input value="${esc(c.repo)}" onchange="ghSet('repo',this.value)">
+    <label>Código de acceso de GitHub (token)</label><input type="password" autocomplete="off" placeholder="github_pat_…" value="${esc(c.token)}" onchange="ghSet('token',this.value)">
+    <div class="row" style="margin-top:10px"><button class="btn sm" onclick="ghTest()">Probar conexión</button>
+    ${S.game && S.game.final ? `<button class="btn sm pri" onclick="uploadGame(true)">Subir ahora</button>` : ""}</div>
+    <p class="small muted">El código se guarda solo en esta tablet. Si la pierdes, bórralo en GitHub (Settings → Developer settings → Personal access tokens).</p></div></details>`;
+}
+
+/* ---------------- datos para el entrenador (van dentro del archivo exportado) ---------------- */
+function coachData() {
+  if (!S.game) return null;
+  const u = S.setup.us, r = OTHER[u], R = analyze("all"), st = state();
+  const strip = k => ({bad: k.bad.map(x => ({label: x.label, text: x.text})), good: k.good.map(x => ({label: x.label, text: x.text}))});
+  const out = {us: u, keys: {all: strip(keys(R))}, goals: [], damage: []};
+  for (let q = 1; q <= S.game.q; q++) if (S.game.starts[q]) out.keys[q] = strip(keys(analyze(q)));
+  out.goals = evalGoals(R).map(x => ({label: x.gd.label, op: x.gd.op, target: x.gd.target, pct: !!x.gd.pct,
+    value: x.v == null ? null : (x.gd.pct ? Math.round(x.v) : x.v), status: x.st}));
+  out.damage = Object.values(R.P).filter(p => p.side === r && p.PTS > 0).sort((a, b) => b.PTS - a.PTS).slice(0, 4).map(p => {
+    const how = [];
+    if (p["3PA"]) how.push(`${p["3PM"]}/${p["3PA"]} de 3`);
+    if (p["2PA"]) how.push(`${p["2PM"]}/${p["2PA"]} de 2`);
+    if (p.FTA) how.push(`${p.FTM}/${p.FTA} TL`);
+    if (p.OREB) how.push(`${p.OREB} reb. of.`);
+    return {num: p.num, name: p.name, pts: p.PTS, how: how.join(" · "), pf: st.pf[p.id] || 0};
+  });
+  return out;
+}
+
+/* ---------------- reconstruir un partido exportado (para recalcular) ---------------- */
+function importGame(exp) {
+  const p = exp.pbp, h = exp.header || {}, side = {}, cap = t => t.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+  side[(p.CodeTeamA || "").trim()] = "A"; side[(p.CodeTeamB || "").trim()] = "B";
+  const players = {};
+  for (const s of "AB") players[s] = ((p.Rosters || {})[s] || []).map(x => ({id: x.pid, num: String(x.num), name: x.name && !x.name.startsWith("#") ? cap(x.name) : ""}));
+  const events = []; let n = 0, q = 0, lastSub = null;
+  const add = (rows, qq) => rows.forEach(row => {
+    const t = row.PLAYTYPE;
+    if (t === "BP") { if (qq === null) q++; return; }
+    if (t === "EP" || t === "EG") return;
+    const m = (row.MARKERTIME || "00:00").split(":"), rem = +m[0] * 60 + +m[1];
+    const e = {n: ++n, q: qq || q, rem, side: side[(row.CODETEAM || "").trim()], pid: (row.PLAYER_ID || "").trim() || null, type: t};
+    if (t === "IN" || t === "OUT") {
+      if (!(lastSub && lastSub.side === e.side && lastSub.rem === rem && lastSub.q === e.q)) lastSub = {id: "s" + n, side: e.side, rem, q: e.q};
+      e.sub = lastSub.id;
+    } else lastSub = null;
+    events.push(e);
+  });
+  ["FirstQuarter", "SecondQuarter", "ThirdQuarter", "ForthQuarter"].forEach((k, i) => { if (p[k]) { q = i + 1; add(p[k], i + 1); } });
+  if (p.ExtraTime) { q = 4; add(p.ExtraTime, null); }
+  const starts = {}; Object.keys(p.Lineups || {}).forEach(k => starts[+k] = p.Lineups[k]);
+  const ended = {}; Object.keys(starts).forEach(k => ended[k] = true);
+  const d = (h.Date || "").split("/");
+  S = {setup: {date: d.length === 3 ? `${d[2]}-${d[1]}-${d[0]}` : today(), hour: h.Hour || "", jornada: h.Round || "", venue: h.Stadium || "", us: h.Us || "A",
+      teams: {A: {name: p.ShortTeamA || p.TeamA, roster: ""}, B: {name: p.ShortTeamB || p.TeamB, roster: ""}}, goals: h.Goals || {}},
+    game: {q: Math.max(...Object.keys(starts).map(Number)), rem: 0, running: false, events, n, players, starts, ended, final: true,
+      teams: {A: {name: p.ShortTeamA || p.TeamA, code: p.CodeTeamA}, B: {name: p.ShortTeamB || p.TeamB, code: p.CodeTeamB}}, goals: h.Goals || {}}};
+  return S;
+}
+
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
-startTicker(); render();
+startTicker(); render(); setTimeout(retryPending, 1500);
 </script>
 </body>
 </html>
